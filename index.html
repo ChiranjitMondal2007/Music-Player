@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Premium Spotify-inspired music player with visualizer, equalizer, and smart features">
+  <meta name="theme-color" content="#0a0a0f">
+  <title>Auralis - Premium Music Player</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎵</text></svg>">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  
+</head>
+<body>
+  <!-- Loading Screen -->
+  <div id="loading-screen" class="loading-screen">
+    <div class="loader-content">
+      <div class="loader-logo">
+        <div class="loader-disc">
+          <div class="loader-disc-inner"></div>
+        </div>
+      </div>
+      <h2 class="loader-title">Auralis</h2>
+      <p class="loader-subtitle">Premium Music Experience</p>
+      <div class="loader-bar"><div class="loader-bar-fill"></div></div>
+    </div>
+  </div>
+
+  <!-- Particle Background -->
+  <canvas id="particle-canvas" class="particle-canvas"></canvas>
+
+  <!-- Animated Background -->
+  <div class="animated-bg">
+    <div class="gradient-orb orb-1"></div>
+    <div class="gradient-orb orb-2"></div>
+    <div class="gradient-orb orb-3"></div>
+  </div>
+
+  <!-- Floating Music Notes -->
+  <div class="floating-notes" id="floating-notes"></div>
+
+  <!-- App Container -->
+  <div class="app" id="app">
+    <!-- Top Navigation -->
+    <header class="top-bar">
+      <div class="top-bar-left">
+        <button class="btn-icon sidebar-toggle" id="sidebar-toggle" aria-label="Toggle sidebar">
+          <i class="fas fa-bars"></i>
+        </button>
+        <div class="logo">
+          <i class="fas fa-compact-disc logo-icon"></i>
+          <span class="logo-text">Auralis</span>
+        </div>
+      </div>
+      <div class="top-bar-center">
+        <div class="search-box" id="search-box">
+          <i class="fas fa-search search-icon"></i>
+          <input type="text" id="search-input" placeholder="Search songs, artists, albums..." autocomplete="off">
+          <button class="btn-icon search-clear hidden" id="search-clear"><i class="fas fa-times"></i></button>
+          <div class="search-suggestions hidden" id="search-suggestions"></div>
+        </div>
+      </div>
+      <div class="top-bar-right">
+        <button class="btn-icon" id="btn-upload" title="Upload Music"><i class="fas fa-cloud-upload-alt"></i></button>
+        <button class="btn-icon" id="btn-sleep-timer" title="Sleep Timer"><i class="fas fa-moon"></i></button>
+        <button class="btn-icon" id="btn-theme" title="Change Theme"><i class="fas fa-palette"></i></button>
+        <button class="btn-icon" id="btn-mini-player" title="Mini Player"><i class="fas fa-compress-alt"></i></button>
+        <button class="btn-icon" id="btn-fullscreen" title="Fullscreen"><i class="fas fa-expand"></i></button>
+      </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <div class="main-wrapper">
+      <!-- Sidebar -->
+      <aside class="sidebar" id="sidebar">
+        <nav class="sidebar-nav">
+          <button class="nav-item active" data-view="home"><i class="fas fa-home"></i><span>Home</span></button>
+          <button class="nav-item" data-view="playlist"><i class="fas fa-list-ul"></i><span>Playlist</span></button>
+          <button class="nav-item" data-view="favorites"><i class="fas fa-heart"></i><span>Favorites</span><span class="badge" id="fav-count">0</span></button>
+          <button class="nav-item" data-view="recent"><i class="fas fa-history"></i><span>Recent</span></button>
+          <button class="nav-item" data-view="mood"><i class="fas fa-smile"></i><span>Moods</span></button>
+          <button class="nav-item" data-view="visualizer"><i class="fas fa-wave-square"></i><span>Visualizer</span></button>
+          <button class="nav-item" data-view="equalizer"><i class="fas fa-sliders-h"></i><span>Equalizer</span></button>
+          <button class="nav-item" data-view="analytics"><i class="fas fa-chart-bar"></i><span>Analytics</span></button>
+          <button class="nav-item" data-view="lyrics"><i class="fas fa-microphone-alt"></i><span>Lyrics</span></button>
+        </nav>
+
+        <div class="sidebar-footer">
+          <div class="sidebar-stats">
+            <span id="sidebar-song-count">0 songs</span>
+            <span id="sidebar-playlist-duration">0:00</span>
+          </div>
+        </div>
+      </aside>
+
+      <!-- Content Views -->
+      <main class="content" id="content">
+        <!-- Home View -->
+        <section class="view active" id="view-home">
+          <div class="view-header">
+            <h1>Good <span id="greeting-time">Evening</span></h1>
+            <div class="filter-bar">
+              <button class="filter-chip active" data-filter="all">All</button>
+              <button class="filter-chip" data-filter="Cinematic">Cinematic</button>
+              <button class="filter-chip" data-filter="Ambient">Ambient</button>
+              <button class="filter-chip" data-filter="Electronic">Electronic</button>
+              <button class="filter-chip" data-filter="Rock">Rock</button>
+              <button class="filter-chip" data-filter="Jazz">Jazz</button>
+              <button class="filter-chip" data-filter="Pop">Pop</button>
+              <button class="filter-chip" data-filter="Classical">Classical</button>
+            </div>
+            <div class="sort-bar">
+              <select id="sort-select" class="sort-select">
+                <option value="default">Default Order</option>
+                <option value="title">Sort by Title</option>
+                <option value="artist">Sort by Artist</option>
+                <option value="duration">Sort by Duration</option>
+                <option value="genre">Sort by Genre</option>
+              </select>
+            </div>
+          </div>
+          <div class="song-grid" id="song-grid"></div>
+        </section>
+
+        <!-- Playlist View -->
+        <section class="view" id="view-playlist">
+          <div class="view-header">
+            <h1>Playlist</h1>
+            <div class="playlist-actions">
+              <button class="btn-action" id="btn-play-all"><i class="fas fa-play"></i> Play All</button>
+              <button class="btn-action" id="btn-shuffle-all"><i class="fas fa-random"></i> Shuffle</button>
+              <button class="btn-action" id="btn-clear-queue"><i class="fas fa-trash"></i> Clear Queue</button>
+            </div>
+          </div>
+          <div class="playlist-container" id="playlist-container"></div>
+        </section>
+
+        <!-- Favorites View -->
+        <section class="view" id="view-favorites">
+          <div class="view-header">
+            <h1>Favorites</h1>
+            <p class="view-subtitle" id="fav-subtitle">0 songs</p>
+          </div>
+          <div class="favorites-grid" id="favorites-grid">
+            <div class="empty-state">
+              <i class="fas fa-heart-broken"></i>
+              <p>No favorites yet</p>
+              <span>Click the heart icon on any song to add it here</span>
+            </div>
+          </div>
+        </section>
+
+        <!-- Recently Played View -->
+        <section class="view" id="view-recent">
+          <div class="view-header">
+            <h1>Recently Played</h1>
+          </div>
+          <div class="recent-list" id="recent-list">
+            <div class="empty-state">
+              <i class="fas fa-history"></i>
+              <p>No listening history yet</p>
+              <span>Start playing music to see your history here</span>
+            </div>
+          </div>
+        </section>
+
+        <!-- Mood View -->
+        <section class="view" id="view-mood">
+          <div class="view-header">
+            <h1>Mood Selection</h1>
+            <p class="view-subtitle">Choose your vibe</p>
+          </div>
+          <div class="mood-grid" id="mood-grid">
+            <button class="mood-card" data-mood="happy">
+              <span class="mood-emoji">&#128522;</span>
+              <span class="mood-label">Happy</span>
+            </button>
+            <button class="mood-card" data-mood="sad">
+              <span class="mood-emoji">&#128532;</span>
+              <span class="mood-label">Sad</span>
+            </button>
+            <button class="mood-card" data-mood="chill">
+              <span class="mood-emoji">&#128524;</span>
+              <span class="mood-label">Chill</span>
+            </button>
+            <button class="mood-card" data-mood="workout">
+              <span class="mood-emoji">&#128170;</span>
+              <span class="mood-label">Workout</span>
+            </button>
+            <button class="mood-card" data-mood="study">
+              <span class="mood-emoji">&#128218;</span>
+              <span class="mood-label">Study</span>
+            </button>
+            <button class="mood-card" data-mood="focus">
+              <span class="mood-emoji">&#127919;</span>
+              <span class="mood-label">Focus</span>
+            </button>
+            <button class="mood-card" data-mood="travel">
+              <span class="mood-emoji">&#128663;</span>
+              <span class="mood-label">Travel</span>
+            </button>
+          </div>
+          <div class="mood-results hidden" id="mood-results">
+            <h2 id="mood-results-title">Songs for your mood</h2>
+            <div class="mood-songs" id="mood-songs"></div>
+          </div>
+        </section>
+
+        <!-- Visualizer View -->
+        <section class="view" id="view-visualizer">
+          <div class="visualizer-container" id="visualizer-container">
+            <canvas id="visualizer-canvas" class="visualizer-canvas"></canvas>
+            <div class="visualizer-controls">
+              <button class="vis-mode active" data-vis="bars">Bars</button>
+              <button class="vis-mode" data-vis="circular">Circular</button>
+              <button class="vis-mode" data-vis="wave">Wave</button>
+              <button class="btn-icon" id="btn-vis-fullscreen" title="Fullscreen Visualizer"><i class="fas fa-expand"></i></button>
+            </div>
+          </div>
+        </section>
+
+        <!-- Equalizer View -->
+        <section class="view" id="view-equalizer">
+          <div class="view-header">
+            <h1>Equalizer</h1>
+          </div>
+          <div class="eq-presets" id="eq-presets">
+            <button class="eq-preset active" data-preset="flat">Flat</button>
+            <button class="eq-preset" data-preset="bass">Bass Boost</button>
+            <button class="eq-preset" data-preset="treble">Treble Boost</button>
+            <button class="eq-preset" data-preset="vocal">Vocal Boost</button>
+            <button class="eq-preset" data-preset="rock">Rock</button>
+            <button class="eq-preset" data-preset="pop">Pop</button>
+            <button class="eq-preset" data-preset="classical">Classical</button>
+            <button class="eq-preset" data-preset="jazz">Jazz</button>
+          </div>
+          <div class="eq-sliders" id="eq-sliders"></div>
+        </section>
+
+        <!-- Analytics View -->
+        <section class="view" id="view-analytics">
+          <div class="view-header">
+            <h1>Analytics</h1>
+          </div>
+          <div class="analytics-grid" id="analytics-grid">
+            <div class="analytics-card">
+              <i class="fas fa-play-circle"></i>
+              <div class="analytics-value" id="stat-total-plays">0</div>
+              <div class="analytics-label">Total Plays</div>
+            </div>
+            <div class="analytics-card">
+              <i class="fas fa-clock"></i>
+              <div class="analytics-value" id="stat-listen-time">0m</div>
+              <div class="analytics-label">Listening Time</div>
+            </div>
+            <div class="analytics-card">
+              <i class="fas fa-heart"></i>
+              <div class="analytics-value" id="stat-fav-count">0</div>
+              <div class="analytics-label">Favorites</div>
+            </div>
+            <div class="analytics-card">
+              <i class="fas fa-music"></i>
+              <div class="analytics-value" id="stat-total-songs">0</div>
+              <div class="analytics-label">Total Songs</div>
+            </div>
+            <div class="analytics-card">
+              <i class="fas fa-trophy"></i>
+              <div class="analytics-value" id="stat-most-played">-</div>
+              <div class="analytics-label">Most Played</div>
+            </div>
+            <div class="analytics-card">
+              <i class="fas fa-guitar"></i>
+              <div class="analytics-value" id="stat-fav-genre">-</div>
+              <div class="analytics-label">Favorite Genre</div>
+            </div>
+          </div>
+          <div class="analytics-chart-section">
+            <h2>Daily Listening</h2>
+            <div class="chart-container" id="daily-chart"></div>
+          </div>
+        </section>
+
+        <!-- Lyrics View -->
+        <section class="view" id="view-lyrics">
+          <div class="lyrics-panel" id="lyrics-panel">
+            <div class="lyrics-header">
+              <h1 id="lyrics-song-title">No Song Playing</h1>
+              <p id="lyrics-song-artist">Select a song to view lyrics</p>
+            </div>
+            <div class="lyrics-body" id="lyrics-body">
+              <div class="empty-state">
+                <i class="fas fa-microphone-alt"></i>
+                <p>Lyrics will appear here</p>
+              </div>
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <!-- Now Playing Bar (Bottom) -->
+    <footer class="now-playing-bar" id="now-playing-bar">
+      <!-- Song Info -->
+      <div class="np-left">
+        <div class="np-cover-wrap">
+          <img id="np-cover" class="np-cover" src="assets/covers/cover1.svg" alt="Album Cover">
+          <div class="vinyl-overlay" id="vinyl-overlay"></div>
+        </div>
+        <div class="np-info">
+          <div class="np-title marquee" id="np-title">No Song Selected</div>
+          <div class="np-artist" id="np-artist">Select a song to play</div>
+        </div>
+        <button class="btn-icon np-fav" id="np-fav" title="Add to Favorites"><i class="far fa-heart"></i></button>
+      </div>
+
+      <!-- Player Controls -->
+      <div class="np-center">
+        <div class="np-controls">
+          <button class="btn-icon" id="btn-shuffle" title="Shuffle (S)"><i class="fas fa-random"></i></button>
+          <button class="btn-icon" id="btn-prev" title="Previous (Left Arrow)"><i class="fas fa-step-backward"></i></button>
+          <button class="btn-icon" id="btn-seek-back" title="Rewind 10s"><i class="fas fa-undo"></i></button>
+          <button class="btn-icon btn-play" id="btn-play" title="Play/Pause (Space)"><i class="fas fa-play"></i></button>
+          <button class="btn-icon" id="btn-seek-fwd" title="Forward 10s"><i class="fas fa-redo"></i></button>
+          <button class="btn-icon" id="btn-next" title="Next (Right Arrow)"><i class="fas fa-step-forward"></i></button>
+          <button class="btn-icon" id="btn-repeat" title="Repeat (R)"><i class="fas fa-redo-alt"></i></button>
+        </div>
+        <div class="np-progress">
+          <span class="np-time" id="np-current">0:00</span>
+          <div class="progress-bar" id="progress-bar">
+            <div class="progress-buffered" id="progress-buffered"></div>
+            <div class="progress-fill" id="progress-fill"></div>
+            <div class="progress-thumb" id="progress-thumb"></div>
+          </div>
+          <span class="np-time" id="np-remaining">0:00</span>
+        </div>
+      </div>
+
+      <!-- Right Controls -->
+      <div class="np-right">
+        <button class="btn-icon" id="btn-lyrics-toggle" title="Lyrics"><i class="fas fa-microphone-alt"></i></button>
+        <button class="btn-icon" id="btn-queue-toggle" title="Queue"><i class="fas fa-list"></i></button>
+        <div class="volume-control">
+          <button class="btn-icon" id="btn-mute" title="Mute (M)"><i class="fas fa-volume-up"></i></button>
+          <div class="volume-slider-wrap">
+            <input type="range" id="volume-slider" class="volume-slider" min="0" max="100" value="80">
+          </div>
+        </div>
+        <div class="speed-control">
+          <button class="btn-icon speed-btn" id="btn-speed" title="Playback Speed">1x</button>
+        </div>
+      </div>
+    </footer>
+  </div>
+
+  <!-- Mini Player -->
+  <div class="mini-player hidden" id="mini-player">
+    <img id="mini-cover" class="mini-cover" src="assets/covers/cover1.svg" alt="">
+    <div class="mini-info">
+      <div class="mini-title" id="mini-title">No Song</div>
+      <div class="mini-artist" id="mini-artist">-</div>
+    </div>
+    <div class="mini-controls">
+      <button class="btn-icon" id="mini-prev"><i class="fas fa-step-backward"></i></button>
+      <button class="btn-icon" id="mini-play"><i class="fas fa-play"></i></button>
+      <button class="btn-icon" id="mini-next"><i class="fas fa-step-forward"></i></button>
+    </div>
+    <button class="btn-icon" id="mini-expand"><i class="fas fa-expand-alt"></i></button>
+    <div class="mini-progress" id="mini-progress"><div class="mini-progress-fill" id="mini-progress-fill"></div></div>
+  </div>
+
+  <!-- Upload Modal -->
+  <div class="modal hidden" id="upload-modal">
+    <div class="modal-overlay"></div>
+    <div class="modal-content glass-card">
+      <div class="modal-header">
+        <h2>Upload Music</h2>
+        <button class="btn-icon modal-close" data-modal="upload-modal"><i class="fas fa-times"></i></button>
+      </div>
+      <div class="upload-zone" id="upload-zone">
+        <i class="fas fa-cloud-upload-alt"></i>
+        <p>Drag & drop MP3 files here</p>
+        <span>or click to browse</span>
+        <input type="file" id="file-input" accept="audio/*" multiple hidden>
+      </div>
+      <div class="upload-list" id="upload-list"></div>
+    </div>
+  </div>
+
+  <!-- Sleep Timer Modal -->
+  <div class="modal hidden" id="sleep-modal">
+    <div class="modal-overlay"></div>
+    <div class="modal-content glass-card">
+      <div class="modal-header">
+        <h2>Sleep Timer</h2>
+        <button class="btn-icon modal-close" data-modal="sleep-modal"><i class="fas fa-times"></i></button>
+      </div>
+      <div class="sleep-options">
+        <button class="sleep-option" data-minutes="15">15 min</button>
+        <button class="sleep-option" data-minutes="30">30 min</button>
+        <button class="sleep-option" data-minutes="45">45 min</button>
+        <button class="sleep-option" data-minutes="60">1 hour</button>
+        <div class="sleep-custom">
+          <input type="number" id="sleep-custom-input" placeholder="Custom (min)" min="1" max="480">
+          <button class="btn-action" id="sleep-custom-btn">Set</button>
+        </div>
+      </div>
+      <div class="sleep-active hidden" id="sleep-active">
+        <p>Timer active: <span id="sleep-remaining">0:00</span></p>
+        <button class="btn-action" id="sleep-cancel">Cancel Timer</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Theme Modal -->
+  <div class="modal hidden" id="theme-modal">
+    <div class="modal-overlay"></div>
+    <div class="modal-content glass-card">
+      <div class="modal-header">
+        <h2>Theme Customizer</h2>
+        <button class="btn-icon modal-close" data-modal="theme-modal"><i class="fas fa-times"></i></button>
+      </div>
+      <div class="theme-grid" id="theme-grid">
+        <button class="theme-option active" data-theme="dark">
+          <div class="theme-preview" style="background: linear-gradient(135deg, #0a0a0f, #1a1a2e)"></div>
+          <span>Dark</span>
+        </button>
+        <button class="theme-option" data-theme="light">
+          <div class="theme-preview" style="background: linear-gradient(135deg, #f0f0f5, #ffffff)"></div>
+          <span>Light</span>
+        </button>
+        <button class="theme-option" data-theme="spotify">
+          <div class="theme-preview" style="background: linear-gradient(135deg, #121212, #1db954)"></div>
+          <span>Spotify Green</span>
+        </button>
+        <button class="theme-option" data-theme="neon">
+          <div class="theme-preview" style="background: linear-gradient(135deg, #0a0015, #6c3ce0)"></div>
+          <span>Neon Purple</span>
+        </button>
+        <button class="theme-option" data-theme="cyberpunk">
+          <div class="theme-preview" style="background: linear-gradient(135deg, #0d0221, #ff2a6d)"></div>
+          <span>Cyberpunk</span>
+        </button>
+        <button class="theme-option" data-theme="ocean">
+          <div class="theme-preview" style="background: linear-gradient(135deg, #0a1628, #0077b6)"></div>
+          <span>Ocean Blue</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Queue Panel (Slide-in) -->
+  <div class="queue-panel hidden" id="queue-panel">
+    <div class="queue-header">
+      <h3>Queue</h3>
+      <button class="btn-icon" id="queue-close"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="queue-list" id="queue-list"></div>
+  </div>
+
+  <!-- Toast Notifications -->
+  <div class="toast-container" id="toast-container"></div>
+
+  <!-- Keyboard Shortcuts Info -->
+  <div class="shortcuts-hint" id="shortcuts-hint">
+    Press <kbd>?</kbd> for keyboard shortcuts
+  </div>
+
+  <!-- Scripts -->
+  <script src="components/theme.js"></script>
+  <script src="components/player.js"></script>
+  <script src="components/playlist.js"></script>
+  <script src="components/visualizer.js"></script>
+  <script src="components/equalizer.js"></script>
+  <script src="components/analytics.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
